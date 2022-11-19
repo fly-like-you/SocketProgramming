@@ -4,7 +4,7 @@
 #include "../Draw.h" // 그림 그리기 함수 서넌
 
 /***************************************FOR PRACTICE*********************************/
-
+// 주석추가
 void sendFixedMsg(int msg_type, int msg_size)
 {
 	int retval;

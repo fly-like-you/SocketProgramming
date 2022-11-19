@@ -1,35 +1,31 @@
 ﻿  PrjServer.cpp
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\server.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\server.h(53,9): warning C4086: pragma 매개 변수는 '1', '2', '4', '8' 또는 '16'이어야 합니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(5,1): warning C4103: 헤더를 포함한 후 맞춤 방식이 변경된 것은 #pragma pack(pop)이 없기 때문일 수 있습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\serverFunction.h(117,41): error C2440: '=': 'char [5]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\serverFunction.h(117,32): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\serverFunction.h(131,3): error C2440: '=': 'char [10]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\serverFunction.h(131,3): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\serverFunction.h(132,3): error C2440: '=': 'char [252]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\serverFunction.h(132,3): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\serverFunction.h(133,3): error C2440: '=': 'char [4]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\serverFunction.h(133,3): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(205,38): error C2440: '=': 'LPSTR'에서 'LPWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(205,37): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(216,38): error C2440: '=': 'LPSTR'에서 'LPWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(216,37): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(227,54): error C2664: 'int lstrlenW(LPCWSTR)': 인수 1을(를) 'const char *'에서 'LPCWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(227,44): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\server.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\server.h(59,9): warning C4086: pragma 매개 변수는 '1', '2', '4', '8' 또는 '16'이어야 합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(5,1): warning C4103: 헤더를 포함한 후 맞춤 방식이 변경된 것은 #pragma pack(pop)이 없기 때문일 수 있습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\serverFunction.h(135,3): error C2440: '=': 'char [20]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\serverFunction.h(135,3): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\serverFunction.h(136,3): error C2440: '=': 'char [22]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\serverFunction.h(136,3): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(207,38): error C2440: '=': 'LPSTR'에서 'LPWSTR'(으)로 변환할 수 없습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(207,37): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(218,38): error C2440: '=': 'LPSTR'에서 'LPWSTR'(으)로 변환할 수 없습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(218,37): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(229,54): error C2664: 'int lstrlenW(LPCWSTR)': 인수 1을(를) 'const char *'에서 'LPCWSTR'(으)로 변환할 수 없습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(229,44): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\winbase.h(2884,1): message : 'lstrlenW' 선언을 참조하십시오.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(227,55): error C2660: 'TextOutW': 함수는 4개의 인수를 사용하지 않습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(229,55): error C2660: 'TextOutW': 함수는 4개의 인수를 사용하지 않습니다.
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\wingdi.h(5101,25): message : 'TextOutW' 선언을 참조하십시오.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(228,53): error C2664: 'int lstrlenW(LPCWSTR)': 인수 1을(를) 'const char *'에서 'LPCWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(228,44): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(230,53): error C2664: 'int lstrlenW(LPCWSTR)': 인수 1을(를) 'const char *'에서 'LPCWSTR'(으)로 변환할 수 없습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(230,44): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\winbase.h(2884,1): message : 'lstrlenW' 선언을 참조하십시오.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(228,54): error C2660: 'TextOutW': 함수는 4개의 인수를 사용하지 않습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(230,54): error C2660: 'TextOutW': 함수는 4개의 인수를 사용하지 않습니다.
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\wingdi.h(5101,25): message : 'TextOutW' 선언을 참조하십시오.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(229,55): error C2664: 'int lstrlenW(LPCWSTR)': 인수 1을(를) 'const char *'에서 'LPCWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(229,45): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(231,55): error C2664: 'int lstrlenW(LPCWSTR)': 인수 1을(를) 'const char *'에서 'LPCWSTR'(으)로 변환할 수 없습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(231,45): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\winbase.h(2884,1): message : 'lstrlenW' 선언을 참조하십시오.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(229,56): error C2660: 'TextOutW': 함수는 4개의 인수를 사용하지 않습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(231,56): error C2660: 'TextOutW': 함수는 4개의 인수를 사용하지 않습니다.
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\wingdi.h(5101,25): message : 'TextOutW' 선언을 참조하십시오.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(247,35): error C2440: '=': 'char [252]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(247,32): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(249,4): error C2440: '=': 'char [252]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
-C:\Users\Parkjunho\Desktop\부분기능통합\그림판 구현 서버\PrjServer.cpp(249,4): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(249,35): error C2440: '=': 'char [252]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(249,32): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(251,4): error C2440: '=': 'char [252]'에서 'LPWSTR'(으)로 변환할 수 없습니다.
+C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 서버\PrjServer.cpp(251,4): message : 가리킨 형식이 관련이 없습니다. 변환하려면 reinterpret_cast, C 스타일 캐스트 또는 함수 스타일 캐스트가 필요합니다.
