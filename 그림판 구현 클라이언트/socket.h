@@ -28,6 +28,7 @@ SOCKET newSocketConnect(int socket_type) // 인수를 받아서 udp, tcp소켓 생성
 	serveraddr.sin_port = htons(g_port);
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("connect()");
+
 	return sock;
 }
 

@@ -10,6 +10,7 @@ char nickname[MAX_USER][MAX_NAME_SIZE] = {"xxx","yyy","zzz"};
 
 /* 전역 변수 선언 */
 SOCKET			   g_listensock;
+SOCKET			   g_udpsock;
 static CHAT_MSG    g_chatmsg;         // 채팅 메시지
 static BLACK_IP    g_blackip;         //차단 ip
 static CLIENT_INFO g_client_info[5];  //클라이언트 정보
@@ -33,15 +34,16 @@ static HWND g_hEditStatus;   // 각종 메시지 출력 영역
 
 
 // 소켓 정보 관리 함수
-bool AddSocketInfo(SOCKET sock, bool isIPv6, bool isUDP);
-void RemoveSocketInfo(HWND hwnd, int nIndex);
-BOOL InsertListViewItems(HWND hWndListView, int cItems);
+bool AddSocketInfo(SOCKET sock, bool isUDP, char* nickname);
+void RemoveSocketInfo(int nIndex);
+BOOL InsertListViewItems(HWND hWndListView);
 
 
 
-bool CreateListenSock(SOCKET& listen_sock) { // TCP, 블로킹 소켓
+bool SetSock(SOCKET& listen_sock, int sockType) { // TCP, 블로킹 소켓
 
-	listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+
+	listen_sock = socket(AF_INET, sockType, 0);
 	if (listen_sock == INVALID_SOCKET) err_quit("socket()");
 
 	struct sockaddr_in serveraddr;
@@ -53,13 +55,16 @@ bool CreateListenSock(SOCKET& listen_sock) { // TCP, 블로킹 소켓
 		sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("bind()");
 
-	retval = listen(listen_sock, SOMAXCONN);
-	if (retval == SOCKET_ERROR) err_quit("listen()");
+	if (sockType == SOCK_STREAM) {
+		retval = listen(listen_sock, SOMAXCONN);
+		if (retval == SOCKET_ERROR) err_quit("listen()");
+	}
+
 	return true;
 }
 
 // 소켓 정보 추가
-bool AddSocketInfo(SOCKET sock, bool isIPv6, bool isUDP, char* nickname)
+bool AddSocketInfo(SOCKET sock, bool isUDP, char* nickname)
 {
 	if (nTotalSockets >= FD_SETSIZE) {
 		printf("[오류] 소켓 정보를 추가할 수 없습니다!\n");
@@ -71,7 +76,6 @@ bool AddSocketInfo(SOCKET sock, bool isIPv6, bool isUDP, char* nickname)
 		return false;
 	}
 	ptr->sock = sock;
-	ptr->isIPv6 = isIPv6;
 	ptr->isUDP = isUDP;
 	ptr->recvbytes = 0;
 	strcpy(ptr->nickname, nickname);

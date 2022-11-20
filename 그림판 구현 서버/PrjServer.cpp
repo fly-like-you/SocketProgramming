@@ -5,13 +5,8 @@
 #include "server.h" // 메시지 구조체 및 상수 정의 
 #include "serverFunction.h" // 스레드 관련 전역변수 및 함수 정의
 
-
-
-
-
 // 콜백 프로시저
 INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
-
 
 DWORD WINAPI DialogThread(LPVOID arg) {
 	HINSTANCE hInstance = (HINSTANCE)arg;
@@ -37,13 +32,13 @@ DWORD WINAPI ConnectionThread(LPVOID arg) {
 
 		FD_ZERO(&rset);
 		FD_SET(g_listensock, &rset);
+		FD_SET(g_udpsock, &rset); // UDP 넣기
 		for (int i = 0; i < nTotalSockets; i++) {
 			FD_SET(SocketInfoArray[i]->sock, &rset);
 		}
 
 		// select()
 		retval = select(0, &rset, NULL, NULL, NULL);
-
 
 		if (retval == SOCKET_ERROR) err_quit("select()");
 
@@ -59,46 +54,51 @@ DWORD WINAPI ConnectionThread(LPVOID arg) {
 			else {
 				// 최초로 리시브 받아줌
 				recv(client_sock, (char*)&welcome_msg, sizeof(WELCOME_MSG), MSG_WAITALL);
-				if (!AddSocketInfo(client_sock, false, false, welcome_msg.nickname))
+				if (!AddSocketInfo(client_sock, false, welcome_msg.nickname))
 					closesocket(client_sock);
 			}
+		}
+		if (FD_ISSET(g_udpsock, &rset)) {
+			if (!AddSocketInfo(g_udpsock, true, (char*)""))
+				closesocket(g_udpsock);
 		}
 
 		// 소켓 셋 검사(2): 데이터 통신
 		for (int i = 0; i < nTotalSockets; i++) {
 			SOCKETINFO* ptr = SocketInfoArray[i];
 			if (FD_ISSET(ptr->sock, &rset)) {
+				if (!ptr->isUDP) {
+					//  박준호 추가 고정 크기 데이터 받기
+					retval = recv(ptr->sock, (char*)&head_msg, sizeof(HEAD_MSG), MSG_WAITALL);
+					if (retval == 0 || retval == SOCKET_ERROR) {
+						RemoveSocketInfo(i);
+						continue;
+					}
+					ptr->buf = (char*)malloc(head_msg.length * sizeof(char));
+					retval = recv(ptr->sock, (char*)ptr->buf, head_msg.length, MSG_WAITALL);
 
-				//  박준호 추가 고정 크기 데이터 받기
-				retval = recv(ptr->sock, (char *)&head_msg, sizeof(HEAD_MSG), MSG_WAITALL);
-				if (retval == 0 || retval == SOCKET_ERROR) {
-					RemoveSocketInfo(i);
-					continue;
+					if (retval == 0 || retval == SOCKET_ERROR) {
+						RemoveSocketInfo(i);
+						continue;
+					}
 				}
-				
-				
-				
-				//client_conn++;
-				// 박준호 추가 가변 크기 데이터 받기
-				// sizeof(head_msg.length *sizeof(char))
-				// ==  head_msg.length = 4
-				// sizeof(char) = 1
-				// sizeof(4)
-				// sizeof(int)
-				// == 8 
-				ptr->buf = (char*)malloc(head_msg.length * sizeof(char));
-				retval = recv(ptr->sock, (char *) ptr->buf, head_msg.length, MSG_WAITALL);
-				
-				if (retval == 0 || retval == SOCKET_ERROR) {
-					RemoveSocketInfo(i);
-					continue;
+				else { // UDP인 경우
+					addrlen = sizeof(clientaddr4);
+					retval = recvfrom(ptr->sock, ptr->buf, sizeof(ptr->buf), 0, (struct sockaddr*)&clientaddr4, &addrlen);
+					char addr[INET_ADDRSTRLEN];
+					inet_ntop(AF_INET, &clientaddr4.sin_addr, addr, sizeof(addr));
+					printf("\n[UDP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
+						addr, ntohs(clientaddr4.sin_port));
+					if (retval == 0 || retval == SOCKET_ERROR) {
+						RemoveSocketInfo(i);
+						continue;
+					}
+					ptr->recvbytes = retval;
 				}
 
 				// 현재 접속한 모든 클라이언트에 데이터 전송
 				for (int j = 0; j < nTotalSockets; j++) {
 					SOCKETINFO* ptr2 = SocketInfoArray[j];
-
-					// 여기서 걸림?
 
 					retval = send(ptr2->sock, (char*)&head_msg, sizeof(HEAD_MSG), 0); // 받은 데이터를 그대로 돌려주기 때문에 head_msg 재사용 서버에서 처리를 하는 경우에는 바껴야댐
 					if (retval == SOCKET_ERROR) {
@@ -132,11 +132,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	g_chatmsg.type = TYPE_CHAT;
 
-	if (CreateListenSock(g_listensock)) {
-		HANDLE hThread2 = CreateThread(NULL, 0, ConnectionThread, NULL, 0, NULL);
-		DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DlgProc);
-		closesocket(g_listensock);
-	}
+	SetSock(g_listensock, SOCK_STREAM);
+	SetSock(g_udpsock, SOCK_DGRAM);
+
+	HANDLE hThread2 = CreateThread(NULL, 0, ConnectionThread, NULL, 0, NULL);
+	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DlgProc);
+	
+	closesocket(g_listensock);
+	closesocket(g_udpsock);
+
 	WSACleanup();
 	return 0;
 }
