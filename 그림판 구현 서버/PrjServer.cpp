@@ -26,16 +26,15 @@ DWORD WINAPI ConnectionThread(LPVOID arg) {
 	SOCKET client_sock;
 	int addrlen;
 	// 데이터 통신에 사용할 변수(IPv4)
-	struct sockaddr_in clientaddr4;
 
-	// 박준호 추가
-
-	HEAD_MSG    head_msg;         // 박준호 추가 고정 크기 메시지  헤더
-	CHAT_MSG    chat_msg;
-	WELCOME_MSG welcome_msg;
 
 	while (1) {
+		// 박준호 추가
+		HEAD_MSG    head_msg;         // 박준호 추가 고정 크기 메시지  헤더
+		struct sockaddr_in clientaddr4;
+		WELCOME_MSG welcome_msg;
 		// 소켓 셋 초기화
+
 		FD_ZERO(&rset);
 		FD_SET(g_listensock, &rset);
 		for (int i = 0; i < nTotalSockets; i++) {
@@ -44,6 +43,8 @@ DWORD WINAPI ConnectionThread(LPVOID arg) {
 
 		// select()
 		retval = select(0, &rset, NULL, NULL, NULL);
+
+
 		if (retval == SOCKET_ERROR) err_quit("select()");
 
 		// 소켓 셋 검사(1): 클라이언트 접속 수용
@@ -79,7 +80,13 @@ DWORD WINAPI ConnectionThread(LPVOID arg) {
 				
 				//client_conn++;
 				// 박준호 추가 가변 크기 데이터 받기
-				ptr->buf = (char*)malloc(sizeof(head_msg.length * sizeof(char)));
+				// sizeof(head_msg.length *sizeof(char))
+				// ==  head_msg.length = 4
+				// sizeof(char) = 1
+				// sizeof(4)
+				// sizeof(int)
+				// == 8 
+				ptr->buf = (char*)malloc(head_msg.length * sizeof(char));
 				retval = recv(ptr->sock, (char *) ptr->buf, head_msg.length, MSG_WAITALL);
 				
 				if (retval == 0 || retval == SOCKET_ERROR) {
@@ -109,10 +116,10 @@ DWORD WINAPI ConnectionThread(LPVOID arg) {
 						continue;
 					}
 				}
-
-			
+				free(ptr->buf);
 			}
 		} /* end of for */
+
 	} /* end of while (1) */
 	return 0;
 }
@@ -139,7 +146,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	/* 각종 핸들*/
 	static HWND heditIPaddr;
-	static HINSTANCE  hInst; // 전역 변수에도 저장
+	//static HINSTANCE  hInst; // 전역 변수에도 저장
 	static HWND hBtnblackAppend; // 전역 변수에도 저장
 	static HWND hBtnblackRemove; // 전역 변수에도 저장
 	static HWND hBtnfilterAppend; // 전역 변수에도 저장
@@ -220,7 +227,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		EnableWindow(CList, FALSE);
 		EnableWindow(BList, FALSE);
-
+		return TRUE;
 
 	case WM_PAINT:
 		hdc = BeginPaint(hDlg, &ps);
@@ -253,13 +260,12 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			return TRUE;
 		case blackRemv:
 			MessageBox(NULL, _T("IP를 입력후 이 버튼을 누르면 해당 사용자가 블랙에서 제외됩니다."), _T("알림"), MB_ICONERROR);
-
 			return TRUE;
+
 		case BlackAdd:
-
 			return TRUE;
-		case filterWord:
 
+		case filterWord:
 			return TRUE;
 		case filterAppend:
 			if (GetDlgItemTextA(hDlg, filterWord, g_chatmsg.msg, SIZE_DAT) != 0) { //입력한게 공백이면 컨트롤에 넣지않는다.
@@ -267,18 +273,17 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 				SetFocus(heditFilterMsg);
 			}
 
-
 			return TRUE;
+
 		case filterRemove:
 			MessageBox(NULL, _T("찾을 단어를 입력후 이 버튼을 누르면 해당 단어는 제외됩니다."), _T("알림"), MB_ICONERROR);
-
 			return TRUE;
 
 		case IDCANCEL:
 			EndDialog(hDlg, IDCANCEL);
 			return TRUE;
 		}
-		return FALSE;
+		//return FALSE;//??
 	}
 	return FALSE;
 
