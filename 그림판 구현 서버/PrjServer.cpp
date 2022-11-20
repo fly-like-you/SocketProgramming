@@ -8,6 +8,7 @@
 
 
 //박종혁왔다갑니다.
+//2차 수정
 
 // 콜백 프로시저
 INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
