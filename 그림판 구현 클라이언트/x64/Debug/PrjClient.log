@@ -1,9 +1,9 @@
 ﻿  PrjClient.cpp
-C:\Users\Parkjunho\source\repos\SocketProgramming\Common.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
-C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 클라이언트\PrjClient.h(97,9): warning C4086: pragma 매개 변수는 '1', '2', '4', '8' 또는 '16'이어야 합니다.
-C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 클라이언트\resource.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
-C:\Users\Parkjunho\source\repos\SocketProgramming\Draw.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
-C:\Users\Parkjunho\source\repos\SocketProgramming\Draw.h(27,44): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Parkjunho\source\repos\SocketProgramming\Draw.h(28,44): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 클라이언트\PrjClient.cpp(67,6): warning C4101: 'retval' :참조되지 않은 지역 변수입니다.
-  PrjClient.vcxproj -> C:\Users\Parkjunho\source\repos\SocketProgramming\그림판 구현 클라이언트\x64\Debug\PrjClient.exe
+C:\Users\Queen\source\repos\SocketProgramming\Common.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+C:\Users\Queen\source\repos\SocketProgramming\그림판 구현 클라이언트\PrjClient.h(97,9): warning C4086: pragma 매개 변수는 '1', '2', '4', '8' 또는 '16'이어야 합니다.
+C:\Users\Queen\source\repos\SocketProgramming\그림판 구현 클라이언트\resource.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+C:\Users\Queen\source\repos\SocketProgramming\Draw.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+C:\Users\Queen\source\repos\SocketProgramming\Draw.h(27,44): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Queen\source\repos\SocketProgramming\Draw.h(28,44): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Queen\source\repos\SocketProgramming\그림판 구현 클라이언트\PrjClient.cpp(67,6): warning C4101: 'retval' :참조되지 않은 지역 변수입니다.
+  PrjClient.vcxproj -> C:\Users\Queen\Source\Repos\SocketProgramming\그림판 구현 클라이언트\x64\Debug\PrjClient.exe
