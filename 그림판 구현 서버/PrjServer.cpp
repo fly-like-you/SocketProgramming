@@ -4,7 +4,7 @@
 #include "resource.h"
 #include "server.h" // 메시지 구조체 및 상수 정의 
 #include "serverFunction.h" // 스레드 관련 전역변수 및 함수 정의
-
+#include "udpServerFunc.h"
 // 콜백 프로시저
 INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -27,12 +27,17 @@ DWORD WINAPI ConnectionThread(LPVOID arg) {
 		// 박준호 추가
 		HEAD_MSG    head_msg;         // 박준호 추가 고정 크기 메시지  헤더
 		struct sockaddr_in clientaddr4;
+		struct sockaddr_in udpAddr;
 		WELCOME_MSG welcome_msg;
-		// 소켓 셋 초기화
 
+		// UDP 변수
+		addrlen = sizeof(clientaddr4);
+
+		// 소켓 셋 초기화 후 udp, tcp소켓 삽입
 		FD_ZERO(&rset);
 		FD_SET(g_listensock, &rset);
 		FD_SET(g_udpsock, &rset); // UDP 넣기
+
 		for (int i = 0; i < nTotalSockets; i++) {
 			FD_SET(SocketInfoArray[i]->sock, &rset);
 		}
@@ -58,45 +63,30 @@ DWORD WINAPI ConnectionThread(LPVOID arg) {
 					closesocket(client_sock);
 			}
 		}
-		if (FD_ISSET(g_udpsock, &rset)) {
-			if (!AddSocketInfo(g_udpsock, true, (char*)""))
-				closesocket(g_udpsock);
-		}
 
 		// 소켓 셋 검사(2): 데이터 통신
 		for (int i = 0; i < nTotalSockets; i++) {
 			SOCKETINFO* ptr = SocketInfoArray[i];
 			if (FD_ISSET(ptr->sock, &rset)) {
-				if (!ptr->isUDP) {
-					//  박준호 추가 고정 크기 데이터 받기
-					retval = recv(ptr->sock, (char*)&head_msg, sizeof(HEAD_MSG), MSG_WAITALL);
-					if (retval == 0 || retval == SOCKET_ERROR) {
-						RemoveSocketInfo(i);
-						continue;
-					}
-					ptr->buf = (char*)malloc(head_msg.length * sizeof(char));
-					retval = recv(ptr->sock, (char*)ptr->buf, head_msg.length, MSG_WAITALL);
 
-					if (retval == 0 || retval == SOCKET_ERROR) {
-						RemoveSocketInfo(i);
-						continue;
-					}
+				//  박준호 추가 고정 크기 데이터 받기
+				retval = recv(ptr->sock, (char*)&head_msg, sizeof(HEAD_MSG), MSG_WAITALL);
+				if (retval == 0 || retval == SOCKET_ERROR) {
+					RemoveSocketInfo(i);
+					continue;
 				}
-				else { // UDP인 경우
-					addrlen = sizeof(clientaddr4);
-					retval = recvfrom(ptr->sock, ptr->buf, sizeof(ptr->buf), 0, (struct sockaddr*)&clientaddr4, &addrlen);
-					char addr[INET_ADDRSTRLEN];
-					inet_ntop(AF_INET, &clientaddr4.sin_addr, addr, sizeof(addr));
-					printf("\n[UDP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
-						addr, ntohs(clientaddr4.sin_port));
-					if (retval == 0 || retval == SOCKET_ERROR) {
-						RemoveSocketInfo(i);
-						continue;
-					}
-					ptr->recvbytes = retval;
+				ptr->buf = (char*)malloc(head_msg.length * sizeof(char));
+				retval = recv(ptr->sock, (char*)ptr->buf, head_msg.length, MSG_WAITALL);
+
+				if (retval == 0 || retval == SOCKET_ERROR) {
+					RemoveSocketInfo(i);
+					continue;
 				}
+				
+
 
 				// 현재 접속한 모든 클라이언트에 데이터 전송
+				// TCP 전송
 				for (int j = 0; j < nTotalSockets; j++) {
 					SOCKETINFO* ptr2 = SocketInfoArray[j];
 
@@ -116,10 +106,114 @@ DWORD WINAPI ConnectionThread(LPVOID arg) {
 						continue;
 					}
 				}
+				// UDP 전송
+				for (int k = 0; k < nTotalUdpSockets; k++) {
+					udpSocketInfo* ptrUdp = udpSocketInfoArray[k];
+					//고정길이 전송
+					retval = sendto(g_udpsock, (char*)&head_msg, sizeof(HEAD_MSG), 0, (struct sockaddr*)&ptrUdp->sockaddr, sizeof(ptrUdp->sockaddr));
+					if (retval == SOCKET_ERROR) {
+						err_display("send()");
+						RemoveUdpSocketInfo(&ptrUdp->sockaddr);
+						--k; // 루프 인덱스 보정
+						continue;
+					}
+
+					// 가변길이 전송
+					retval = sendto(g_udpsock, (char*)ptr->buf, head_msg.length, 0, (struct sockaddr*)&ptrUdp->sockaddr, sizeof(ptrUdp->sockaddr));
+					if (retval == SOCKET_ERROR) {
+						err_display("send()");
+						RemoveUdpSocketInfo(&ptrUdp->sockaddr);
+						--k; // 루프 인덱스 보정
+						continue;
+					}
+
+				}
+
 				free(ptr->buf);
 			}
 		} /* end of for */
 
+		// UDP 수신
+		// UDP는 바로 받으면 되기 때문에 for문 하나는 필요없음
+		if (FD_ISSET(g_udpsock, &rset))
+		{
+			char* buf;
+			struct sockaddr_in udpAddr;
+
+			addrlen = sizeof(udpAddr);
+
+			//고정길이 수신
+			retval = recvfrom(g_udpsock, (char*)&head_msg, sizeof(HEAD_MSG), 0, (struct sockaddr*)&udpAddr, &addrlen);
+			if (retval == SOCKET_ERROR) {
+				RemoveUdpSocketInfo(&udpAddr);
+				continue;
+			}
+			buf = (char*)malloc(head_msg.length * sizeof(char));
+
+
+			//가변길이 수신
+			retval = recvfrom(g_udpsock, (char*)buf, head_msg.length, 0, (struct sockaddr*)&udpAddr, &addrlen);
+			if (retval == SOCKET_ERROR) {
+				RemoveUdpSocketInfo(&udpAddr);
+				continue;
+			}
+
+			// 소켓 정보 구조체에 추가
+			// 일단 한번이라도 등록이 되어야하기 때문에 메시지를 보내야만 보임
+			if (!compareUdpSocketArray(&udpAddr)) { // 구조체를 뒤져서 없으면
+				AddUdpSocketInfo(udpAddr);			// 구조체에 추가하기
+
+			}
+			
+
+			// 데이터 전송
+			// TCP 전송
+			for (int j = 0; j < nTotalSockets; j++) {
+				SOCKETINFO* ptrTcp = SocketInfoArray[j];
+				// 고정길이 전송
+				retval = send(ptrTcp->sock, (char*)&head_msg, sizeof(HEAD_MSG), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					RemoveSocketInfo(j);
+					--j; // 루프 인덱스 보정
+					continue;
+				}
+
+				// 가변길이 전송
+				retval = send(ptrTcp->sock, (char*)buf, head_msg.length, 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					RemoveSocketInfo(j);
+					--j; // 루프 인덱스 보정
+					continue;
+				}
+			}
+
+			// UDP 전송
+			for (int k = 0; k < nTotalUdpSockets; k++) {
+				udpSocketInfo* ptrUdp = udpSocketInfoArray[k];
+				//고정길이 전송
+				retval = sendto(g_udpsock, (char*)&head_msg, sizeof(HEAD_MSG), 0, (struct sockaddr*)&ptrUdp->sockaddr, sizeof(ptrUdp->sockaddr));
+				// UDP는 없는 친구한테 보내도 확인을안함
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					RemoveUdpSocketInfo(&udpAddr);
+					--k; // 루프 인덱스 보정
+					continue;
+				}
+
+				// 가변길이 전송
+				retval = sendto(g_udpsock, (char*)buf, head_msg.length, 0, (struct sockaddr*)&ptrUdp->sockaddr, sizeof(ptrUdp->sockaddr));
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					RemoveUdpSocketInfo(&udpAddr);
+					--k; // 루프 인덱스 보정
+					continue;
+				}
+
+			}
+			free(buf);
+		}
 	} /* end of while (1) */
 	return 0;
 }
