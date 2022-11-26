@@ -13,7 +13,7 @@ SOCKET			   g_listensock;
 SOCKET			   g_udpsock;
 static CHAT_MSG    g_chatmsg;         // 채팅 메시지
 static BLACK_IP    g_blackip;         //차단 ip
-static CLIENT_INFO g_client_info[5];  //클라이언트 정보
+
 
 
 

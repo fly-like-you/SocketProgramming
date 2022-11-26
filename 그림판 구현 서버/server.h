@@ -33,12 +33,6 @@ typedef struct _BLACK_IP {
 	char ip[SIZE_DAT];
 }BLACK_IP;
 
-typedef struct _CLIENT_INFO {
-	int type;
-	char ip[SIZE_DAT];
-	char nickname[5]; //닉네임 최대 10자
-	char color[4];
-}CLIENT_INFO;
 
 typedef struct _CHAT_MSG
 {
@@ -55,5 +49,6 @@ typedef struct _SOCKETINFO
 	char*  buf;
 	char   nickname[MAX_NAME_SIZE];
 	int    recvbytes;
+	int	   sendbytes;
 } SOCKETINFO;
 #pragma pack(0)
