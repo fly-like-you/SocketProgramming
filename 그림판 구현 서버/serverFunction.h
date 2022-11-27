@@ -10,9 +10,10 @@ char nickname[MAX_USER][MAX_NAME_SIZE] = {"xxx","yyy","zzz"};
 
 /* 전역 변수 선언 */
 SOCKET			   g_listensock;
+SOCKET			   g_udpsock;
 static CHAT_MSG    g_chatmsg;         // 채팅 메시지
 static BLACK_IP    g_blackip;         //차단 ip
-static CLIENT_INFO g_client_info[5];  //클라이언트 정보
+
 
 
 
@@ -32,77 +33,11 @@ static HWND g_hBtnReset; //클라이언트 목록 새로고침;
 static HWND g_hEditStatus;   // 각종 메시지 출력 영역
 
 
-// 소켓 정보 관리 함수
-bool AddSocketInfo(SOCKET sock, bool isIPv6, bool isUDP);
-void RemoveSocketInfo(HWND hwnd, int nIndex);
-BOOL InsertListViewItems(HWND hWndListView, int cItems);
 
 
 
-bool CreateListenSock(SOCKET& listen_sock) { // TCP, 블로킹 소켓
 
-	listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (listen_sock == INVALID_SOCKET) err_quit("socket()");
 
-	struct sockaddr_in serveraddr;
-	memset(&serveraddr, 0, sizeof(serveraddr));
-	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serveraddr.sin_port = htons(SERVERPORT);
-	retval = bind(listen_sock, (struct sockaddr*)&serveraddr,
-		sizeof(serveraddr));
-	if (retval == SOCKET_ERROR) err_quit("bind()");
-
-	retval = listen(listen_sock, SOMAXCONN);
-	if (retval == SOCKET_ERROR) err_quit("listen()");
-	return true;
-}
-
-// 소켓 정보 추가
-bool AddSocketInfo(SOCKET sock, bool isIPv6, bool isUDP, char* nickname)
-{
-	if (nTotalSockets >= FD_SETSIZE) {
-		printf("[오류] 소켓 정보를 추가할 수 없습니다!\n");
-		return false;
-	}
-	SOCKETINFO* ptr = new SOCKETINFO;
-	if (ptr == NULL) {
-		printf("[오류] 메모리가 부족합니다!\n");
-		return false;
-	}
-	ptr->sock = sock;
-	ptr->isIPv6 = isIPv6;
-	ptr->isUDP = isUDP;
-	ptr->recvbytes = 0;
-	strcpy(ptr->nickname, nickname);
-	SocketInfoArray[nTotalSockets++] = ptr;
-	return true;
-}
-// 소켓 정보 삭제
-void RemoveSocketInfo(int nIndex)
-{
-	SOCKETINFO* ptr = SocketInfoArray[nIndex];
-
-	if (ptr->isIPv6 == false) {
-		// 클라이언트 정보 얻기
-		struct sockaddr_in clientaddr;
-		int addrlen = sizeof(clientaddr);
-		getpeername(ptr->sock, (struct sockaddr*)&clientaddr, &addrlen);
-		// 클라이언트 정보 출력
-		char addr[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-		printf("[TCP/IPv4 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n",
-			addr, ntohs(clientaddr.sin_port));
-	}
-	// 소켓 닫기
-	//ListView_DeleteItem(nIndex);
-	closesocket(ptr->sock);
-	delete ptr;
-
-	if (nIndex != (nTotalSockets - 1))
-		SocketInfoArray[nIndex] = SocketInfoArray[nTotalSockets - 1];
-	--nTotalSockets;
-}
 
 // 리스트뷰에 항목 넣기
 BOOL InsertListViewItems(HWND hWndListView)

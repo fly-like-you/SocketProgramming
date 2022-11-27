@@ -147,6 +147,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="socketFunction.h" />
+    <ClInclude Include="udpServerFunc.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resource.aps" />
