@@ -1,14 +1,9 @@
 #pragma once
 // struct udpSocketInfo
 // bool addUdpSocketInfo
-int nTotalUdpSockets;
 
-struct udpSocketInfo
-{
-	char   buf[BUFSIZE];
-	sockaddr_in sockaddr;
-};
-udpSocketInfo* udpSocketInfoArray[FD_SETSIZE];
+
+
 
 
 
@@ -34,12 +29,7 @@ BOOL AddUdpSocketInfo(struct sockaddr_in sockaddr)
 }
 
 
-void getIpPort(char* ipAddress, unsigned short* sockPort, struct sockaddr_in *sockaddr) { // 소켓 주소 구조체에서 ip주소를 가져오는 함수
-	char addr[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &sockaddr->sin_addr, addr, sizeof(addr));
-	*sockPort = sockaddr->sin_port;
-	strcpy(ipAddress, addr);
-}
+
 
 
 BOOL compareUdpSocketArray(struct sockaddr_in* target) {

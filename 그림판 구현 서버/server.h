@@ -4,6 +4,7 @@
 #include <tchar.h>	
 #include<CommCtrl.h>
 
+
 /*14장 예시 그대로 사용*/
 #define SIZE_TOT 256 // 전송 패킷(헤더 + 데이터) 전체 크기 
 #define SIZE_DAT (SIZE_TOT-sizeof(int))
@@ -13,6 +14,8 @@
 #define MAX_NAME_SIZE 20
 #define MAX_USER 64 //최대 소켓 연결 개수 ////박종혁
 
+#define TYPE_UDP_CONNECTION 1005
+#define TYPE_UDP_DISCONNECTION 1006
 /* 박준호 추가*/
 // 메시지 헤더 정의
 #pragma pack(1)
@@ -23,6 +26,7 @@ typedef struct _WELCOME_MSG
 
 typedef struct _HEAD_MSG
 {
+	bool connectionRequest;
 	int  type;    // 메시지 타입 - 채팅, 선, 도형 등
 	int  length;  // 해당 메시지 구조체의 크기
 } HEAD_MSG;
@@ -50,5 +54,14 @@ typedef struct _SOCKETINFO
 	char   nickname[MAX_NAME_SIZE];
 	int    recvbytes;
 	int	   sendbytes;
+	bool   recvflag;
+	bool   sendflag;
 } SOCKETINFO;
+
+struct udpSocketInfo
+{
+	char   buf[BUFSIZE];
+	sockaddr_in sockaddr;
+};
+udpSocketInfo* udpSocketInfoArray[FD_SETSIZE];
 #pragma pack(0)

@@ -2,9 +2,11 @@
 
 #include "Common.h"
 #include "resource.h"
+
 #include "server.h" // 메시지 구조체 및 상수 정의 
 #include "serverFunction.h" // 스레드 관련 전역변수 및 함수 정의
 #include "udpServerFunc.h"
+#include "socketFunction.h"
 // 콜백 프로시저
 INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -21,21 +23,19 @@ DWORD WINAPI DialogThread(LPVOID arg) {
 	return 0;
 }
 
-DWORD WINAPI ClientRecvUdpThread(LPVOID arg) {
-	// UDP 수신
-	//	 UDP는 바로 받으면 되기 때문에 for문 하나는 필요없
-	// 
-	// 데이터 통신에 사용할 변수
+
+// 송수신 스레드
+
+// UDP 수신 스레드
+DWORD WINAPI ClientRecvUdpThread(LPVOID arg) {  // UDP 스레드
 	int retval;
-	struct sockaddr_in clientaddr;
 	int addrlen;
-	char buf[BUFSIZE + 1];
+	char* buf;
+	struct sockaddr_in udpAddr;
 
 	// 클라이언트와 데이터 통신
 	while (1) {
-		char* buf;
-		struct sockaddr_in udpAddr;
-
+		retval = WaitForSingleObject(hSendEvent, INFINITE); // 이벤트 대기
 		addrlen = sizeof(udpAddr);
 
 		//고정길이 수신
@@ -44,9 +44,17 @@ DWORD WINAPI ClientRecvUdpThread(LPVOID arg) {
 			RemoveUdpSocketInfo(&udpAddr);
 			continue;
 		}
+		if (g_head_msg.connectionRequest == FALSE && g_head_msg.type == TYPE_UDP_CONNECTION) { // 첫 접속
+			AddUdpSocketInfo(udpAddr);
+			continue;
+		}
+		else if (g_head_msg.connectionRequest == TRUE && g_head_msg.type == TYPE_UDP_DISCONNECTION) { // 접속 종료
+			RemoveUdpSocketInfo(&udpAddr);
+			continue;
+		}
 		buf = (char*)malloc(g_head_msg.length * sizeof(char));
 
-		translationBuffer = (char*)malloc(g_head_msg.length * sizeof(char)); // 문제점 버퍼가 공유변수이기 때문에 불안정할수도있음
+		translationBuffer = (char*)malloc(g_head_msg.length * sizeof(char));
 
 		//가변길이 수신
 		retval = recvfrom(g_udpsock, (char*)buf, g_head_msg.length, 0, (struct sockaddr*)&udpAddr, &addrlen);
@@ -57,51 +65,49 @@ DWORD WINAPI ClientRecvUdpThread(LPVOID arg) {
 
 		// 소켓 정보 구조체에 추가
 		// 일단 한번이라도 등록이 되어야하기 때문에 메시지를 보내야만 보임
-		if (!compareUdpSocketArray(&udpAddr)) { // 구조체를 뒤져서 없으면
-			AddUdpSocketInfo(udpAddr);			// 구조체에 추가하기
-
-		}
+		//if (!compareUdpSocketArray(&udpAddr)) { // 구조체를 뒤져서 없으면
+		//	AddUdpSocketInfo(udpAddr);			// 구조체에 추가하기
+		//}
 		memcpy(translationBuffer, buf, g_head_msg.length);
-
-
 		free(buf);
 
 		SetEvent(hRecvEvent); // 상대 이벤트 키기
+		ResetEvent(hSendEvent);
 	}
-
-
-
-	
 	return 0;
 }
+
+// TCP 수신 스레드
 DWORD WINAPI ClientRecvTcpThread(LPVOID arg) {
-	// 첫 접속 시에는 이름과 펜 색깔을 정해줘야 함
-	//블랙리스트 처리
-	// 공지사항 전파
+
+	// 소켓 셋 정의
 	fd_set rset;
 	fd_set wset;
-	SOCKET client_sock;
-	int addrlen;
+	
 	// 데이터 통신에 사용할 변수(IPv4)
 
-
 	while (1) {
-		//retval = WaitForSingleObject(hSendEvent, INFINITE);
-		//if (retval != WAIT_OBJECT_0) break;
+		// 송신 스레드의 완료를 기다리기
+		retval = WaitForSingleObject(hSendEvent, INFINITE);
+		if (retval != WAIT_OBJECT_0) break;
+
 		// 박준호 추가
+		// 변수 선언
+		SOCKET client_sock;
+		WELCOME_MSG welcome_msg;
 		struct sockaddr_in clientaddr4;
 		struct sockaddr_in udpAddr;
-		WELCOME_MSG welcome_msg;
+		int addrlen;
 
-		// UDP 변수
 		addrlen = sizeof(clientaddr4);
 
-		// 소켓 셋 초기화 후 udp, tcp소켓 삽입
+		// 소켓 셋 초기화
 		FD_ZERO(&rset);
 		FD_ZERO(&wset);
 		FD_SET(g_listensock, &rset);
-		//FD_SET(g_udpsock, &rset); // UDP 넣기
 
+		// 논 블로킹 소켓
+		// 읽기 셋, 쓰기 셋 분류
 		for (int i = 0; i < nTotalSockets; i++) {
 			if( SocketInfoArray[i]->recvbytes > SocketInfoArray[i]->sendbytes)
 				FD_SET(SocketInfoArray[i]->sock, &wset);
@@ -109,15 +115,11 @@ DWORD WINAPI ClientRecvTcpThread(LPVOID arg) {
 			else
 				FD_SET(SocketInfoArray[i]->sock, &rset);	
 		}
-
-		// select()
+		// select()에서 대기
 		retval = select(0, &rset, &wset, NULL, NULL);
 
-
-
 		if (retval == SOCKET_ERROR) err_quit("select()");
-
-		// 소켓 셋 검사(1): 클라이언트 접속 수용
+		// TCP 클라이언트 첫 접속
 		if (FD_ISSET(g_listensock, &rset)) { // TCP/IPv4
 			addrlen = sizeof(clientaddr4);
 			client_sock = accept(g_listensock,
@@ -128,77 +130,108 @@ DWORD WINAPI ClientRecvTcpThread(LPVOID arg) {
 			}
 			else {
 				// 최초로 리시브 받아줌
-				recv(client_sock, (char*)&welcome_msg, sizeof(WELCOME_MSG), MSG_WAITALL);
+				retval = recvn(client_sock, (char*)&welcome_msg, sizeof(WELCOME_MSG), 0); // 여기 위험 웰컴 메시지 크기가 작지만 recv가 다 못받을 가능성 있음
 				if (!AddSocketInfo(client_sock, false, welcome_msg.nickname))
 					closesocket(client_sock);
 			}
 		}
 
-		// 소켓 셋 검사(2): 데이터 통신
+		// 소켓 셋 검사: 데이터 통신
 		for (int i = 0; i < nTotalSockets; i++) {
 			SOCKETINFO* ptr = SocketInfoArray[i];
-			if (FD_ISSET(ptr->sock, &rset)) {
+			
+			if (FD_ISSET(ptr->sock, &rset) && ptr->recvflag == FALSE) {  // recvflag가 꺼진 경우 -> 고정 크기 데이터 받기 
 
-				//  박준호 추가 고정 크기 데이터 받기
-				retval = recv(ptr->sock, (char*)&g_head_msg, sizeof(HEAD_MSG), MSG_WAITALL);
-				if (retval == 0 || retval == SOCKET_ERROR) {
+				//고정 크기 데이터 받기
+				retval = recvn(ptr->sock, (char*)&g_head_msg, sizeof(HEAD_MSG), 0);// 여기 헤더 크기가 작지만 recv가 다 못받을 가능성 있음
+				if (retval == 0) {
 					RemoveSocketInfo(i);
 					continue;
 				}
-				ptr->buf = (char*)malloc(g_head_msg.length * sizeof(char));
-				translationBuffer = (char*)malloc(g_head_msg.length * sizeof(char));
-				retval = recv(ptr->sock, (char*)ptr->buf, g_head_msg.length, MSG_WAITALL);
-
-				memcpy(translationBuffer, ptr->buf, g_head_msg.length);
-				if (retval == 0 || retval == SOCKET_ERROR) {
+				else if (retval == SOCKET_ERROR) {
+					err_display("recv()");
 					RemoveSocketInfo(i);
 					continue;
 				}
 				
+				ptr->buf = (char*)malloc(g_head_msg.length * sizeof(char));
+				translationBuffer = (char*)malloc(g_head_msg.length * sizeof(char));
+				ptr->recvflag = TRUE;
+
+			
+			}else if (FD_ISSET(ptr->sock, &rset) && ptr->recvflag == TRUE) {  // recvflag가 켜진 경우 -> 가변 크기 데이터 받기 
+				retval = recvn(ptr->sock, (char*)ptr->buf, g_head_msg.length, 0);
+				if (retval == 0) {
+					RemoveSocketInfo(i);
+					continue;
+				}
+				else if (retval == SOCKET_ERROR) {
+					err_quit("recv()");
+					RemoveSocketInfo(i);
+					continue;
+				}
+				memcpy(translationBuffer, ptr->buf, retval);
+				ptr->recvbytes += retval; 
+				ptr->recvflag = FALSE;
 				free(ptr->buf);
+			}
+			if (FD_ISSET(ptr->sock, &wset)) {  // 읽기 셋 검사
+				SetEvent(hRecvEvent);   // 송신 스레드 활성화
+				ResetEvent(hSendEvent);  // 수동 리셋 모드이기 때문에 이벤트 종료
+			}
+		} /* 반복문 종료 */
 
-				SetEvent(hRecvEvent); // 상대 이벤트 키기
-				// 이거 TCP랑 UDP랑 같이 켜지면 어케댐?
-			}	
-		} /* end of for */
-
-
-		
-	} /* end of while (1) */
+	} /* 무한 반복 종료 */
 	return 0;
 }
+
+// 클라이언트 송신 스레드
 DWORD WINAPI ClientSendThread(LPVOID arg) {
 
 	while (1) {
 		retval = WaitForSingleObject(hRecvEvent, INFINITE); // 읽기 완료 대기
-
 		if (retval != WAIT_OBJECT_0) break;
-		// 현재 접속한 모든 클라이언트에 데이터 전송
-		// TCP 전송
 
-		struct sockaddr_in clientaddr4;
-		struct sockaddr_in udpAddr;
+		// 현재 접속한 모든 클라이언트에 데이터 전송
+
+		char* sendThreadBuf = (char*)malloc(g_head_msg.length * sizeof(char));
+		memcpy(sendThreadBuf, translationBuffer, g_head_msg.length);
+		
+		free(translationBuffer);
+
+		// TCP 전송
 		for (int j = 0; j < nTotalSockets; j++) {
 			SOCKETINFO* ptr2 = SocketInfoArray[j];
+			if (ptr2->sendflag == FALSE) {    // sendflag가 꺼진 경우 고정 길이 전송
+				retval = sendn(ptr2->sock, (char*)&g_head_msg, sizeof(HEAD_MSG), 0); // 받은 데이터를 그대로 돌려주기 때문에 head_msg 재사용 서버에서 처리를 하는 경우에는 바껴야댐
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					RemoveSocketInfo(j);
+					--j; // 루프 인덱스 보정
+					continue;
+				}
 
-			retval = send(ptr2->sock, (char*)&g_head_msg, sizeof(HEAD_MSG), 0); // 받은 데이터를 그대로 돌려주기 때문에 head_msg 재사용 서버에서 처리를 하는 경우에는 바껴야댐
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				RemoveSocketInfo(j);
-				--j; // 루프 인덱스 보정
-				continue;
+				ptr2->sendflag = TRUE;
 			}
-			// 헤더에서 받은 길이는 보내는 만큼의 크기
-			retval = send(ptr2->sock, (char*)translationBuffer, g_head_msg.length, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				RemoveSocketInfo(j);
-				--j; // 루프 인덱스 보정
-				continue;
+			else if (ptr2->sendflag == TRUE) {    // sendflag가 켜진 경우 고정 길이 전송
+				retval = sendn(ptr2->sock, (char*)sendThreadBuf, g_head_msg.length, 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					RemoveSocketInfo(j);
+					--j; // 루프 인덱스 보정
+					continue;
+				}
+
+				ptr2->sendbytes += retval;
+				if (ptr2->recvbytes == ptr2->sendbytes) {
+					ptr2->recvbytes = ptr2->sendbytes = 0;
+				}
+				ptr2->sendflag = FALSE;
+
 			}
 		}
 
-		// UDP 전송
+		 //UDP 전송
 		for (int k = 0; k < nTotalUdpSockets; k++) {
 			udpSocketInfo* ptrUdp = udpSocketInfoArray[k];
 			//고정길이 전송
@@ -211,7 +244,7 @@ DWORD WINAPI ClientSendThread(LPVOID arg) {
 			}
 
 			// 가변길이 전송
-			retval = sendto(g_udpsock, (char*)translationBuffer, g_head_msg.length, 0, (struct sockaddr*)&ptrUdp->sockaddr, sizeof(ptrUdp->sockaddr));
+			retval = sendto(g_udpsock, (char*)sendThreadBuf, g_head_msg.length, 0, (struct sockaddr*)&ptrUdp->sockaddr, sizeof(ptrUdp->sockaddr));
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
 				RemoveUdpSocketInfo(&ptrUdp->sockaddr);
@@ -219,14 +252,15 @@ DWORD WINAPI ClientSendThread(LPVOID arg) {
 				continue;
 			}
 
-		}
-		free(translationBuffer);
 
-		//SetEvent(hSendEvent);
+		}
+		free(sendThreadBuf);
+		SetEvent(hSendEvent);
 		ResetEvent(hRecvEvent);
 	}
 	return 0;
 }
+ 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
 	// 윈속 초기화
@@ -239,15 +273,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetSock(g_listensock, SOCK_STREAM);
 	SetSock(g_udpsock, SOCK_DGRAM);
 
+	/* 논 블로킹 소켓 적용 */
+	u_long on = 1;
+	retval = ioctlsocket(g_listensock, FIONBIO, &on);
+	if (retval == SOCKET_ERROR) err_quit("ioctlsocket()");
 	/* 이벤트 객체 처리 */
 	hRecvEvent = CreateEvent(NULL, TRUE, FALSE, NULL);  // 클라이언트로 부터 데이터 받기 완료
-	//hSendEvent = CreateEvent(NULL, TRUE, FALSE, NULL);  // 클라이언트로 부터 데이터 전송 완료
+	hSendEvent = CreateEvent(NULL, TRUE, FALSE, NULL);  // 클라이언트로 부터 데이터 전송 완료
 
 	HANDLE hClientRecvUdpThread = CreateThread(NULL, 0, ClientRecvUdpThread, NULL, 0, NULL);
 	HANDLE hClientRecvTcpThread = CreateThread(NULL, 0, ClientRecvTcpThread, NULL, 0, NULL);
 	HANDLE hClientWriteThread = CreateThread(NULL, 0, ClientSendThread, NULL, 0, NULL);
 
-	//SetEvent(hSendEvent);
+	SetEvent(hSendEvent);
 
 	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DlgProc);
 	

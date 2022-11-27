@@ -18,7 +18,7 @@ void err_quit(const char *msg)
 	FormatMessageA(
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 		NULL, WSAGetLastError(),
-		MAKELANGID(0x09, SUBLANG_DEFAULT),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(char *)&lpMsgBuf, 0, NULL);
 	MessageBoxA(NULL, (const char *)lpMsgBuf, msg, MB_ICONERROR);
 	LocalFree(lpMsgBuf);
