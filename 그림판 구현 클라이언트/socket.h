@@ -2,10 +2,9 @@
 #include "..\Common.h"
 
 /* 통신 관련 전역 변수 */
-static volatile bool g_isIPv6;        // IPv4 or IPv6 주소?
 static char          g_ipaddr[64];    // 서버 IP 주소(문자열)
 static int           g_port;          // 서버 포트 번호
-static volatile bool g_isUDP;         // TCP or UDP 프로토콜?
+static volatile bool g_isUDP;         // TCP or UDP 프로토콜
 static HANDLE        g_hClientThread; // 스레드 핸들
 static volatile bool g_bCommStarted;  // 통신 시작 여부
 static SOCKET        g_sock;          // 클라이언트 소켓

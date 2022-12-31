@@ -1,9 +1,10 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ì—ì„œ ìƒì„±í•œ í¬í•¨ íŒŒì¼ì…ë‹ˆë‹¤.
-// PrjClient.rcì—ì„œ ì‚¬ìš©ë˜ê³  ìˆìŠµë‹ˆë‹¤.
+// Microsoft Visual C++¿¡¼­ »ı¼ºÇÑ Æ÷ÇÔ ÆÄÀÏÀÔ´Ï´Ù.
+// PrjClient.rc¿¡¼­ »ç¿ëµÇ°í ÀÖ½À´Ï´Ù.
 //
 #define IDD_DIALOG1                     101
 #define IDC_ISIPV6                      1001
+#define IDC_ISTCP                       1001
 #define IDC_ISUDP                       1002
 #define IDC_IPADDR                      1003
 #define IDC_PORT                        1004
@@ -19,9 +20,11 @@
 #define IDC_DUMMY                       1014
 #define IDC_RECTANGLE                   1015
 #define IDC_CIRCLE                      1016
-
+#define IDC_CIRCLE2                     1017
 #define IDC_NICKNAME                    1021
 #define IDC_NICKNAME2                   1022
+#define IDC_RADIO2                      1022
+#define IDC_UDP                         1022
 #define IDC_BUTTON_NICKNAME_CHANGE      1023
 #define IDC_NICKNAMECHANGEBTN           1024
 #define IDC_SHOWFIRST                   1025
@@ -32,7 +35,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        103
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -1,17 +1,17 @@
-#define _CRT_SECURE_NO_WARNINGS // ���� C �Լ� ��� �� ��� ���
-#define _WINSOCK_DEPRECATED_NO_WARNINGS // ���� ���� API ��� �� ��� ���
+#define _CRT_SECURE_NO_WARNINGS 
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-#include <winsock2.h> // ����2 ���� ���
-#include <ws2tcpip.h> // ����2 Ȯ�� ���
+#include <winsock2.h> 
+#include <ws2tcpip.h> 
 
 #include <tchar.h> // _T(), ...
 #include <stdio.h> // printf(), ...
 #include <stdlib.h> // exit(), ...
 #include <string.h> // strncpy(), ...
 
-#pragma comment(lib, "ws2_32") // ws2_32.lib ��ũ
+#pragma comment(lib, "ws2_32") 
 
-// ���� �Լ� ���� ��� �� ����
+
 void err_quit(const char *msg)
 {
 	LPVOID lpMsgBuf;
@@ -24,21 +24,6 @@ void err_quit(const char *msg)
 	LocalFree(lpMsgBuf);
 	exit(1);
 }
-
-// ���� �Լ� ���� ���
-//void err_display(const char *msg)
-//{
-//	LPVOID lpMsgBuf;
-//	FormatMessageA(
-//		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-//		NULL, WSAGetLastError(),
-//		MAKELANGID(0x09, SUBLANG_DEFAULT),
-//		(char *)&lpMsgBuf, 0, NULL);
-//	printf("[%s] %s\n", msg, (char *)lpMsgBuf);
-//	LocalFree(lpMsgBuf);
-//}
-
-// ���� �Լ� ���� ���
 void err_display(int errcode)
 {
 	LPVOID lpMsgBuf;
