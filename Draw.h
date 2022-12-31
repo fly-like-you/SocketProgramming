@@ -3,7 +3,7 @@
 #include <math.h>
 
 
-// 사각형 그리기 함수
+
 void drawRectangle(const HDC& hDC, WPARAM& wParam, LPARAM& lParam)
 {
 	MoveToEx(hDC, LOWORD(wParam), HIWORD(wParam), NULL); // x0, y0
@@ -13,13 +13,10 @@ void drawRectangle(const HDC& hDC, WPARAM& wParam, LPARAM& lParam)
 	LineTo(hDC, LOWORD(wParam), HIWORD(wParam)); // x0, y1
 }
 
-// 라디안 구하기
 double getRadian(int num) {
 	return num * (PI / 180);
 }
 
-
-// 원 그리기 함수
 void drawCircle(const HDC& hDC, int radius, WPARAM& wParam)
 {
 	int tempX = radius + LOWORD(wParam);
@@ -34,7 +31,7 @@ void drawCircle(const HDC& hDC, int radius, WPARAM& wParam)
 	}
 }
 
-// 선그리기 함수
+
 void drawLine(const HDC& hDC, WPARAM& wParam, LPARAM& lParam)
 {
 	MoveToEx(hDC, LOWORD(wParam), HIWORD(wParam), NULL);
