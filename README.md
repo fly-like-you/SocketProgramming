@@ -1,6 +1,10 @@
 # SocketProgramming
 윈도우 GUI 프로그래밍을 통한 소켓 프로그래밍 하기
-
+주요 기능
+- 그림판 기능
+- 채팅 기능 (UDP, TCP 간 통신도 가능)
+정리 사이트
+https://beckssu.notion.site/09f0c1e428c44710a9220c1aadf9e22c
 ## 2022. 12. 31
 - 최종 제출
 - 코드 주석 추가
